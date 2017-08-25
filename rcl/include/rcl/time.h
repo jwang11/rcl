@@ -309,77 +309,6 @@ RCL_WARN_UNUSED
 rcl_ret_t
 rcl_duration_fini(rcl_duration_t * duration);
 
-/// Get the default `RCL_ROS_TIME` time source
-/**
- * This function will get the process default time source.
- * This time source is specifically of the ROS time abstraction,
- * and may be overridden by updates.
- *
- * If the default has not yet been used it will allocate
- * and initialize the time source.
- *
- * \return rcl_time_source_t if it successfully found or allocated a
- *         time source. If an error occurred it will return NULL.
- */
-RCL_PUBLIC
-RCL_WARN_UNUSED
-rcl_time_source_t *
-rcl_get_default_ros_time_source(void);
-
-/// Get the default `RCL_STEADY_TIME` time source
-/**
- * This function will get the process default time source.
- * This time source is specifically of the steady time abstraction,
- * it should not be able to be overridden..
- *
- * If the default has not yet been used it will allocate
- * and initialize the time source.
- *
- * \return rcl_time_source_t if it successfully found or allocated a
- *         time source. If an error occurred it will return NULL.
- */
-RCL_PUBLIC
-RCL_WARN_UNUSED
-rcl_time_source_t *
-rcl_get_default_steady_time_source(void);
-
-/// Get the default `RCL_SYSTEM_TIME` time source
-/**
- * This function will get the process default time source.
- * This time source is specifically of the system time abstraction,
- * and may be overridden by updates to the system clock.
- *
- * If the default has not yet been used it will allocate
- * and initialize the time source.
- *
- * \return rcl_time_source_t if it successfully found or allocated a
- *         time source. If an error occurred it will return NULL.
- */
-RCL_PUBLIC
-RCL_WARN_UNUSED
-rcl_time_source_t *
-rcl_get_default_system_time_source(void);
-
-/// Set the current time on the `RCL_ROS_TIME` time source
-/**
- * This function is used to set the time on a ROS time source.
- * It will error if passed a different time source.
- *
- * This should not block, except on Windows. One caveat is that
- * if the ROS time abstraction is active, it will invoke the user
- * defined callbacks, for pre and post update notifications. The
- * callbacks are supposed to be short running and non-blocking.
- *
- * \param[in] process_time_source The time source on which to set the value.
- * \return `RCL_RET_OK` if the value was set successfully, or
- * \return `RCL_RET_INVALID_ARGUMENT` if any arguments are invalid, or
- * \return `RCL_RET_ERROR` an unspecified error occur.
- */
-RCL_PUBLIC
-RCL_WARN_UNUSED
-rcl_ret_t
-rcl_set_default_ros_time_source(rcl_time_source_t * process_time_source);
-
 /// Compute the difference between two time points
 /**
  * This function takes two time points and computes the duration between them.
@@ -406,7 +335,7 @@ rcl_difference_times(
 /**
  * This function will populate the data of the time_point object with the
  * current value from it's associated time abstraction.
- *
+ * \param[in] time_source The time source from which to set the value.
  * \param[out] time_point The time_point to populate.
  * \return `RCL_RET_OK` if the last call time was retrieved successfully, or
  * \return `RCL_RET_INVALID_ARGUMENT` if any arguments are invalid, or
@@ -415,7 +344,7 @@ rcl_difference_times(
 RCL_PUBLIC
 RCL_WARN_UNUSED
 rcl_ret_t
-rcl_time_point_get_now(rcl_time_point_t * time_point);
+rcl_time_point_get_now(rcl_time_source_t * time_source, rcl_time_point_t * time_point);
 
 
 /// Enable the ROS time abstraction override.

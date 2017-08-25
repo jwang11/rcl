@@ -23,10 +23,6 @@
 #include "rcl/error_handling.h"
 #include "rcutils/time.h"
 
-// Process default ROS time sources
-static rcl_time_source_t * rcl_default_ros_time_source;
-static rcl_time_source_t * rcl_default_steady_time_source;
-static rcl_time_source_t * rcl_default_system_time_source;
 
 // Internal storage for RCL_ROS_TIME implementation
 typedef struct rcl_ros_time_source_storage_t
@@ -196,10 +192,7 @@ rcl_ret_t
 rcl_time_point_init(rcl_time_point_t * time_point, rcl_time_source_t * time_source)
 {
   RCL_CHECK_ARGUMENT_FOR_NULL(time_point, RCL_RET_INVALID_ARGUMENT, rcl_get_default_allocator());
-  if (!time_source) {
-    time_point->time_source = rcl_get_default_ros_time_source();
-    return RCL_RET_OK;
-  }
+  RCL_CHECK_ARGUMENT_FOR_NULL(time_source, RCL_RET_INVALID_ARGUMENT, rcl_get_default_allocator());
   time_point->time_source = time_source;
 
   return RCL_RET_OK;
@@ -217,10 +210,7 @@ rcl_ret_t
 rcl_duration_init(rcl_duration_t * duration, rcl_time_source_t * time_source)
 {
   RCL_CHECK_ARGUMENT_FOR_NULL(duration, RCL_RET_INVALID_ARGUMENT, rcl_get_default_allocator());
-  if (!time_source) {
-    duration->time_source = rcl_get_default_ros_time_source();
-    return RCL_RET_OK;
-  }
+  RCL_CHECK_ARGUMENT_FOR_NULL(time_source, RCL_RET_INVALID_ARGUMENT, rcl_get_default_allocator());
   duration->time_source = time_source;
 
   return RCL_RET_OK;
@@ -234,56 +224,6 @@ rcl_duration_fini(rcl_duration_t * duration)
   return RCL_RET_OK;
 }
 
-rcl_time_source_t *
-rcl_get_default_ros_time_source(void)
-{
-  if (!rcl_default_ros_time_source) {
-    rcl_default_ros_time_source = (rcl_time_source_t *)calloc(1, sizeof(rcl_time_source_t));
-    rcl_ret_t retval = rcl_ros_time_source_init(rcl_default_ros_time_source);
-    if (retval != RCL_RET_OK) {
-      return NULL;
-    }
-  }
-  return rcl_default_ros_time_source;
-}
-
-rcl_time_source_t *
-rcl_get_default_steady_time_source(void)
-{
-  if (!rcl_default_steady_time_source) {
-    rcl_default_steady_time_source = (rcl_time_source_t *)calloc(1, sizeof(rcl_time_source_t));
-    rcl_ret_t retval = rcl_steady_time_source_init(rcl_default_steady_time_source);
-    if (retval != RCL_RET_OK) {
-      return NULL;
-    }
-  }
-  return rcl_default_steady_time_source;
-}
-
-rcl_time_source_t *
-rcl_get_default_system_time_source(void)
-{
-  if (!rcl_default_system_time_source) {
-    rcl_default_system_time_source = (rcl_time_source_t *)calloc(1, sizeof(rcl_time_source_t));
-    rcl_ret_t retval = rcl_system_time_source_init(rcl_default_system_time_source);
-    if (retval != RCL_RET_OK) {
-      return NULL;
-    }
-  }
-  return rcl_default_system_time_source;
-}
-
-rcl_ret_t
-rcl_set_default_ros_time_source(rcl_time_source_t * process_time_source)
-{
-  RCL_CHECK_ARGUMENT_FOR_NULL(
-    process_time_source, RCL_RET_INVALID_ARGUMENT, rcl_get_default_allocator());
-  if (rcl_default_ros_time_source) {
-    free(rcl_default_ros_time_source);
-  }
-  rcl_default_ros_time_source = process_time_source;
-  return RCL_RET_OK;
-}
 
 rcl_ret_t
 rcl_difference_times(
@@ -304,8 +244,9 @@ rcl_difference_times(
 }
 
 rcl_ret_t
-rcl_time_point_get_now(rcl_time_point_t * time_point)
+rcl_time_point_get_now(rcl_time_source_t * time_source, rcl_time_point_t * time_point)
 {
+  // TODO(tfoote) switch to use external time source
   RCL_CHECK_ARGUMENT_FOR_NULL(time_point, RCL_RET_INVALID_ARGUMENT, rcl_get_default_allocator());
   if (time_point->time_source && time_point->time_source->get_now) {
     return time_point->time_source->get_now(time_point->time_source->data,
