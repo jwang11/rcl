@@ -24,7 +24,7 @@
 #include "rcutils/time.h"
 
 
-// Internal storage for RCL_ROS_TIqME implementation
+// Internal storage for RCL_ROS_TIME implementation
 typedef struct rcl_ros_clock_storage_t
 {
   atomic_uint_least64_t current_time;
