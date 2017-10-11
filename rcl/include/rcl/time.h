@@ -237,43 +237,6 @@ RCL_WARN_UNUSED
 rcl_ret_t
 rcl_system_clock_fini(rcl_clock_t * clock);
 
-/// Initialize a time point using the clock.
-/**
- * This function will initialize the time_point using the clock
- * as a reference.
- * If the clock is null it will use the system default clock.
- *
- * This will allocate all necessary internal structures, and initialize variables.
- * The clock may be of types `RCL_ROS_TIME`, `RCL_STEADY_TIME`, or
- * `RCL_SYSTEM_TIME`.
- *
- * \param[in] time_point the handle to the clock which is being initialized.
- * \param[in] clock_type the type of the clock that clock will be used for reference.
- * \return `RCL_RET_OK` if the last call time was retrieved successfully, or
- * \return `RCL_RET_INVALID_ARGUMENT` if any arguments are invalid, or
- * \return `RCL_RET_ERROR` an unspecified error occur.
- */
-RCL_PUBLIC
-RCL_WARN_UNUSED
-rcl_ret_t
-rcl_time_point_init(rcl_time_point_t * time_point, rcl_clock_type_t * clock_type);
-
-/// Finalize a time_point
-/**
- * Finalize the time_point such that it is ready for deallocation.
- *
- * This will deallocate all necessary internal structures, and clean up any variables.
- *
- * \param[in] time_point the handle to the time_point which is being finalized.
- * \return `RCL_RET_OK` if the last call time was retrieved successfully, or
- * \return `RCL_RET_INVALID_ARGUMENT` if any arguments are invalid, or
- * \return `RCL_RET_ERROR` an unspecified error occur.
- */
-RCL_PUBLIC
-RCL_WARN_UNUSED
-rcl_ret_t
-rcl_time_point_fini(rcl_time_point_t * time_point);
-
 /// Initialize a duration using the clock.
 /**
  * This function will initialize the duration using the clock as a reference.
