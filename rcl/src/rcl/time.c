@@ -226,7 +226,7 @@ rcl_difference_times(
 }
 
 rcl_ret_t
-rcl_time_point_get_now(rcl_clock_t * clock, rcl_time_point_t * time_point)
+rcl_clock_get_now(rcl_clock_t * clock, rcl_time_point_t * time_point)
 {
   // TODO(tfoote) switch to use external time source
   RCL_CHECK_ARGUMENT_FOR_NULL(time_point, RCL_RET_INVALID_ARGUMENT, rcl_get_default_allocator());

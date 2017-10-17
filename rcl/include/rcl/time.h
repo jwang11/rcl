@@ -307,7 +307,7 @@ rcl_difference_times(
 RCL_PUBLIC
 RCL_WARN_UNUSED
 rcl_ret_t
-rcl_time_point_get_now(rcl_clock_t * clock, rcl_time_point_t * time_point);
+rcl_clock_get_now(rcl_clock_t * clock, rcl_time_point_t * time_point);
 
 
 /// Enable the ROS time abstraction override.
