@@ -87,4 +87,7 @@ typedef rmw_ret_t rcl_ret_t;
 /// Given rcl_wait_set_t is full return code.
 #define RCL_RET_WAIT_SET_FULL 902
 
+/// typedef for rmw_message_raw_t;
+typedef rmw_message_raw_t rcl_message_raw_t;
+
 #endif  // RCL__TYPES_H_
