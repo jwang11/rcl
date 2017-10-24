@@ -359,7 +359,7 @@ RCL_PUBLIC
 RCL_WARN_UNUSED
 rcl_ret_t
 rcl_is_enabled_ros_time_override(
-  rcl_time_source_t * time_source, bool * is_enabled);
+  rcl_clock_t * time_source, bool * is_enabled);
 
 /// Set the current time for this `RCL_ROS_TIME` time source.
 /**
@@ -378,7 +378,7 @@ RCL_PUBLIC
 RCL_WARN_UNUSED
 rcl_ret_t
 rcl_set_ros_time_override(
-  rcl_time_source_t * time_source, rcl_time_point_value_t time_value);
+  rcl_clock_t * time_source, rcl_time_point_value_t time_value);
 
 #if __cplusplus
 }
