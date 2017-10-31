@@ -271,12 +271,16 @@ TEST(CLASSNAME(rcl_time, RMW_IMPLEMENTATION), rcl_time_difference) {
   rcl_ret_t retval = rcl_ros_clock_init(ros_clock);
   EXPECT_EQ(retval, RCL_RET_OK) << rcl_get_error_string_safe();
   EXPECT_TRUE(ros_clock != nullptr);
+  EXPECT_TRUE(ros_clock->data != nullptr);
+  EXPECT_EQ(ros_clock->type, RCL_ROS_TIME);
 
   rcl_ret_t ret;
   rcl_time_point_t a, b;
 
   a.nanoseconds = 1000;
   b.nanoseconds = 2000;
+  a.clock_type = RCL_ROS_TIME;
+  b.clock_type = RCL_ROS_TIME;
 
   rcl_duration_t d;
   ret = rcl_duration_init(&d, &(ros_clock->type));

@@ -220,8 +220,9 @@ rcl_difference_times(
   if (finish->nanoseconds < start->nanoseconds) {
     rcl_time_point_value_t intermediate = start->nanoseconds - finish->nanoseconds;
     delta->nanoseconds = -1 * (int) intermediate;
+  } else {
+    delta->nanoseconds = (int)(finish->nanoseconds - start->nanoseconds);
   }
-  delta->nanoseconds = (int)(finish->nanoseconds - start->nanoseconds);
   return RCL_RET_OK;
 }
 
@@ -230,7 +231,7 @@ rcl_clock_get_now(rcl_clock_t * clock, rcl_time_point_t * time_point)
 {
   // TODO(tfoote) switch to use external time source
   RCL_CHECK_ARGUMENT_FOR_NULL(time_point, RCL_RET_INVALID_ARGUMENT, rcl_get_default_allocator());
-  if (time_point->clock_type && clock->get_now) {
+  if (clock->type && clock->get_now) {
     return clock->get_now(clock->data,
              &(time_point->nanoseconds));
   }
