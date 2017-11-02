@@ -58,7 +58,8 @@ public:
 TEST_F(CLASSNAME(TestTimeFixture, RMW_IMPLEMENTATION), test_rcl_ros_time_set_override) {
   rcl_clock_t * ros_clock =
     reinterpret_cast<rcl_clock_t *>(calloc(1, sizeof(rcl_clock_t)));
-  rcl_ret_t retval = rcl_ros_clock_init(ros_clock);
+  rcl_allocator_t allocator = rcl_get_default_allocator();
+  rcl_ret_t retval = rcl_ros_clock_init(ros_clock, &allocator);
   EXPECT_EQ(retval, RCL_RET_OK) << rcl_get_error_string_safe();
 
   assert_no_realloc_begin();
@@ -161,18 +162,24 @@ TEST_F(CLASSNAME(TestTimeFixture, RMW_IMPLEMENTATION), test_rcl_ros_time_set_ove
 TEST_F(CLASSNAME(TestTimeFixture, RMW_IMPLEMENTATION), test_rcl_init_for_clock_and_point) {
   assert_no_realloc_begin();
   rcl_ret_t ret;
+  rcl_allocator_t allocator = rcl_get_default_allocator();
   // Check for invalid argument error condition (allowed to alloc).
-  ret = rcl_ros_clock_init(nullptr);
+  ret = rcl_ros_clock_init(nullptr, &allocator);
+  EXPECT_EQ(ret, RCL_RET_INVALID_ARGUMENT) << rcl_get_error_string_safe();
+  rcl_reset_error();
+  // Check for invalid argument error condition (allowed to alloc).
+  rcl_clock_t uninitialized_clock;
+  ret = rcl_ros_clock_init(&uninitialized_clock, nullptr);
   EXPECT_EQ(ret, RCL_RET_INVALID_ARGUMENT) << rcl_get_error_string_safe();
   rcl_reset_error();
   // Check for normal operation (not allowed to alloc).
   rcl_clock_t source;
-  ret = rcl_ros_clock_init(&source);
+  ret = rcl_ros_clock_init(&source, &allocator);
   EXPECT_EQ(ret, RCL_RET_OK) << rcl_get_error_string_safe();
 
   rcl_clock_t * ros_clock =
     reinterpret_cast<rcl_clock_t *>(calloc(1, sizeof(rcl_clock_t)));
-  rcl_ret_t retval = rcl_ros_clock_init(ros_clock);
+  rcl_ret_t retval = rcl_ros_clock_init(ros_clock, &allocator);
   EXPECT_EQ(retval, RCL_RET_OK) << rcl_get_error_string_safe();
 
   // assert_no_malloc_begin();
@@ -202,73 +209,77 @@ TEST(CLASSNAME(rcl_time, RMW_IMPLEMENTATION), clock_validation) {
   rcl_clock_t uninitialized;
   // Not reliably detectable due to random values.
   // ASSERT_FALSE(rcl_clock_valid(&uninitialized));
+  rcl_allocator_t allocator = rcl_get_default_allocator();
   rcl_ret_t ret;
-  ret = rcl_ros_clock_init(&uninitialized);
+  ret = rcl_ros_clock_init(&uninitialized, &allocator);
   EXPECT_EQ(ret, RCL_RET_OK) << rcl_get_error_string_safe();
 }
 
 TEST(CLASSNAME(rcl_time, RMW_IMPLEMENTATION), default_clock_instanciation) {
   rcl_clock_t * ros_clock =
     reinterpret_cast<rcl_clock_t *>(calloc(1, sizeof(rcl_clock_t)));
-  rcl_ret_t retval = rcl_ros_clock_init(ros_clock);
+  rcl_allocator_t allocator = rcl_get_default_allocator();
+  rcl_ret_t retval = rcl_ros_clock_init(ros_clock, &allocator);
   EXPECT_EQ(retval, RCL_RET_OK) << rcl_get_error_string_safe();
   ASSERT_TRUE(rcl_clock_valid(ros_clock));
 
   rcl_clock_t * steady_clock =
     reinterpret_cast<rcl_clock_t *>(calloc(1, sizeof(rcl_clock_t)));
-  retval = rcl_steady_clock_init(steady_clock);
+  retval = rcl_steady_clock_init(steady_clock, &allocator);
   EXPECT_EQ(retval, RCL_RET_OK) << rcl_get_error_string_safe();
   ASSERT_TRUE(rcl_clock_valid(steady_clock));
 
   rcl_clock_t * system_clock =
     reinterpret_cast<rcl_clock_t *>(calloc(1, sizeof(rcl_clock_t)));
-  retval = rcl_system_clock_init(system_clock);
+  retval = rcl_system_clock_init(system_clock, &allocator);
   EXPECT_EQ(retval, RCL_RET_OK) << rcl_get_error_string_safe();
   ASSERT_TRUE(rcl_clock_valid(system_clock));
 }
 
 TEST(CLASSNAME(rcl_time, RMW_IMPLEMENTATION), specific_clock_instantiation) {
+  rcl_allocator_t allocator = rcl_get_default_allocator();
   {
     rcl_clock_t uninitialized_clock;
     rcl_ret_t ret = rcl_clock_init(
-      RCL_CLOCK_UNINITIALIZED, &uninitialized_clock);
+      RCL_CLOCK_UNINITIALIZED, &uninitialized_clock, &allocator);
     EXPECT_EQ(ret, RCL_RET_OK) << rcl_get_error_string_safe();
     EXPECT_EQ(uninitialized_clock.type, RCL_CLOCK_UNINITIALIZED) <<
       "Expected time source of type RCL_CLOCK_UNINITIALIZED";
   }
   {
     rcl_clock_t ros_clock;
-    rcl_ret_t ret = rcl_clock_init(RCL_ROS_TIME, &ros_clock);
+    rcl_ret_t ret = rcl_clock_init(RCL_ROS_TIME, &ros_clock, &allocator);
     EXPECT_EQ(ret, RCL_RET_OK) << rcl_get_error_string_safe();
     EXPECT_EQ(ros_clock.type, RCL_ROS_TIME) <<
       "Expected time source of type RCL_ROS_TIME";
-    ret = rcl_clock_fini(&ros_clock);
+    ret = rcl_clock_fini(&ros_clock, &allocator);
     EXPECT_EQ(ret, RCL_RET_OK) << rcl_get_error_string_safe();
   }
   {
     rcl_clock_t system_clock;
-    rcl_ret_t ret = rcl_clock_init(RCL_SYSTEM_TIME, &system_clock);
+    rcl_ret_t ret = rcl_clock_init(RCL_SYSTEM_TIME, &system_clock, &allocator);
     EXPECT_EQ(ret, RCL_RET_OK) << rcl_get_error_string_safe();
     EXPECT_EQ(system_clock.type, RCL_SYSTEM_TIME) <<
       "Expected time source of type RCL_SYSTEM_TIME";
-    ret = rcl_clock_fini(&system_clock);
+    ret = rcl_clock_fini(&system_clock, &allocator);
     EXPECT_EQ(ret, RCL_RET_OK) << rcl_get_error_string_safe();
   }
   {
     rcl_clock_t steady_clock;
-    rcl_ret_t ret = rcl_clock_init(RCL_STEADY_TIME, &steady_clock);
+    rcl_ret_t ret = rcl_clock_init(RCL_STEADY_TIME, &steady_clock, &allocator);
     EXPECT_EQ(ret, RCL_RET_OK) << rcl_get_error_string_safe();
     EXPECT_EQ(steady_clock.type, RCL_STEADY_TIME) <<
       "Expected time source of type RCL_STEADY_TIME";
-    ret = rcl_clock_fini(&steady_clock);
+    ret = rcl_clock_fini(&steady_clock, &allocator);
     EXPECT_EQ(ret, RCL_RET_OK) << rcl_get_error_string_safe();
   }
 }
 
 TEST(CLASSNAME(rcl_time, RMW_IMPLEMENTATION), rcl_time_difference) {
+  rcl_allocator_t allocator = rcl_get_default_allocator();
   rcl_clock_t * ros_clock =
-    reinterpret_cast<rcl_clock_t *>(calloc(1, sizeof(rcl_clock_t)));
-  rcl_ret_t retval = rcl_ros_clock_init(ros_clock);
+    reinterpret_cast<rcl_clock_t *>(allocator.allocate(sizeof(rcl_clock_t), allocator.state));
+  rcl_ret_t retval = rcl_ros_clock_init(ros_clock, &allocator);
   EXPECT_EQ(retval, RCL_RET_OK) << rcl_get_error_string_safe();
   EXPECT_TRUE(ros_clock != nullptr);
   EXPECT_TRUE(ros_clock->data != nullptr);
@@ -312,11 +323,17 @@ void post_callback(void)
   post_callback_called = true;
 }
 
+void reset_callback_triggers(void)
+{
+  pre_callback_called = false;
+  post_callback_called = false;
+}
 
 TEST(CLASSNAME(rcl_time, RMW_IMPLEMENTATION), rcl_time_update_callbacks) {
+  rcl_allocator_t allocator = rcl_get_default_allocator();
   rcl_clock_t * ros_clock =
-    reinterpret_cast<rcl_clock_t *>(calloc(1, sizeof(rcl_clock_t)));
-  rcl_ret_t retval = rcl_ros_clock_init(ros_clock);
+    reinterpret_cast<rcl_clock_t *>(allocator.allocate(sizeof(rcl_clock_t), allocator.state));
+  rcl_ret_t retval = rcl_ros_clock_init(ros_clock, &allocator);
   EXPECT_EQ(retval, RCL_RET_OK) << rcl_get_error_string_safe();
   rcl_time_point_t query_now;
   rcl_ret_t ret;
@@ -325,7 +342,6 @@ TEST(CLASSNAME(rcl_time, RMW_IMPLEMENTATION), rcl_time_update_callbacks) {
   // set callbacks
   ros_clock->pre_update = pre_callback;
   ros_clock->post_update = post_callback;
-
 
   EXPECT_FALSE(pre_callback_called);
   EXPECT_FALSE(post_callback_called);

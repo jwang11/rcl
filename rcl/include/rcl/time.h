@@ -20,6 +20,7 @@ extern "C"
 {
 #endif
 
+#include "rcl/allocator.h"
 #include "rcl/macros.h"
 #include "rcl/types.h"
 #include "rcl/visibility_control.h"
@@ -109,6 +110,7 @@ rcl_clock_valid(rcl_clock_t * clock);
  *
  * \param[in] clock_type the type identifying the time source to provide
  * \param[in] clock the handle to the clock which is being initialized
+ * \param[in] allocator The allocator to use for allocations
  * \return `RCL_RET_OK` if the time source was successfully initialized, or
  * \return `RCL_RET_INVALID_ARGUMENT` if any arguments are invalid, or
  * \return `RCL_RET_ERROR` an unspecified error occur.
@@ -117,8 +119,8 @@ RCL_PUBLIC
 RCL_WARN_UNUSED
 rcl_ret_t
 rcl_clock_init(
-  enum rcl_clock_type_t clock_type, rcl_clock_t * clock
-);
+  enum rcl_clock_type_t clock_type, rcl_clock_t * clock,
+  const rcl_allocator_t * allocator);
 
 /// Finalize a clock.
 /**
@@ -129,6 +131,7 @@ rcl_clock_init(
  * RCL_RET_INVALID_ARGUMENT being returned.
  *
  * \param[in] clock the handle to the clock which is being finalized
+ * \param[in] allocator The allocator to use for deallocation
  * \return `RCL_RET_OK` if the time source was successfully finalized, or
  * \return `RCL_RET_INVALID_ARGUMENT` if any arguments are invalid, or
  * \return `RCL_RET_ERROR` an unspecified error occur.
@@ -136,7 +139,9 @@ rcl_clock_init(
 RCL_PUBLIC
 RCL_WARN_UNUSED
 rcl_ret_t
-rcl_clock_fini(rcl_clock_t * clock);
+rcl_clock_fini(
+  rcl_clock_t * clock,
+  const rcl_allocator_t * allocator);
 
 /// Initialize a clock as a RCL_ROS_TIME time source.
 /**
@@ -144,6 +149,7 @@ rcl_clock_fini(rcl_clock_t * clock);
  * It is specifically setting up a RCL_ROS_TIME time source.
  *
  * \param[in] clock the handle to the clock which is being initialized
+ * \param[in] allocator The allocator to use for allocations
  * \return `RCL_RET_OK` if the time source was successfully initialized, or
  * \return `RCL_RET_INVALID_ARGUMENT` if any arguments are invalid, or
  * \return `RCL_RET_ERROR` an unspecified error occur.
@@ -151,7 +157,9 @@ rcl_clock_fini(rcl_clock_t * clock);
 RCL_PUBLIC
 RCL_WARN_UNUSED
 rcl_ret_t
-rcl_ros_clock_init(rcl_clock_t * clock);
+rcl_ros_clock_init(
+  rcl_clock_t * clock,
+  const rcl_allocator_t * allocator);
 
 /// Finalize a clock as a `RCL_ROS_TIME` time source.
 /**
@@ -160,6 +168,7 @@ rcl_ros_clock_init(rcl_clock_t * clock);
  * to be paired with the init fuction.
  *
  * \param[in] clock the handle to the clock which is being initialized
+ * \param[in] allocator The allocator to use for deallocation
  * \return `RCL_RET_OK` if the time source was successfully finalized, or
  * \return `RCL_RET_INVALID_ARGUMENT` if any arguments are invalid, or
  * \return `RCL_RET_ERROR` an unspecified error occur.
@@ -167,7 +176,9 @@ rcl_ros_clock_init(rcl_clock_t * clock);
 RCL_PUBLIC
 RCL_WARN_UNUSED
 rcl_ret_t
-rcl_ros_clock_fini(rcl_clock_t * clock);
+rcl_ros_clock_fini(
+  rcl_clock_t * clock,
+  const rcl_allocator_t * allocator);
 
 /// Initialize a clock as a `RCL_STEADY_TIME` time source.
 /**
@@ -175,6 +186,7 @@ rcl_ros_clock_fini(rcl_clock_t * clock);
  * It is specifically setting up a `RCL_STEADY_TIME` time source.
  *
  * \param[in] clock the handle to the clock which is being initialized
+ * \param[in] allocator The allocator to use for allocations
  * \return `RCL_RET_OK` if the time source was successfully initialized, or
  * \return `RCL_RET_INVALID_ARGUMENT` if any arguments are invalid, or
  * \return `RCL_RET_ERROR` an unspecified error occur.
@@ -182,7 +194,9 @@ rcl_ros_clock_fini(rcl_clock_t * clock);
 RCL_PUBLIC
 RCL_WARN_UNUSED
 rcl_ret_t
-rcl_steady_clock_init(rcl_clock_t * clock);
+rcl_steady_clock_init(
+  rcl_clock_t * clock,
+  const rcl_allocator_t * allocator);
 
 /// Finalize a clock as a `RCL_STEADY_TIME` time source.
 /**
@@ -193,6 +207,7 @@ rcl_steady_clock_init(rcl_clock_t * clock);
  * paired with the init fuction.
  *
  * \param[in] clock the handle to the clock which is being initialized
+ * \param[in] allocator The allocator to use for deallocation
  * \return `RCL_RET_OK` if the time source was successfully finalized, or
  * \return `RCL_RET_INVALID_ARGUMENT` if any arguments are invalid, or
  * \return `RCL_RET_ERROR` an unspecified error occur.
@@ -200,7 +215,9 @@ rcl_steady_clock_init(rcl_clock_t * clock);
 RCL_PUBLIC
 RCL_WARN_UNUSED
 rcl_ret_t
-rcl_steady_clock_fini(rcl_clock_t * clock);
+rcl_steady_clock_fini(
+  rcl_clock_t * clock,
+  const rcl_allocator_t * allocator);
 
 /// Initialize a clock as a `RCL_SYSTEM_TIME` time source.
 /**
@@ -210,6 +227,7 @@ rcl_steady_clock_fini(rcl_clock_t * clock);
  * It is specifically setting up a system time source.
  *
  * \param[in] clock the handle to the clock which is being initialized
+ * \param[in] allocator The allocator to use for allocations
  * \return `RCL_RET_OK` if the time source was successfully initialized, or
  * \return `RCL_RET_INVALID_ARGUMENT` if any arguments are invalid, or
  * \return `RCL_RET_ERROR` an unspecified error occur.
@@ -217,7 +235,9 @@ rcl_steady_clock_fini(rcl_clock_t * clock);
 RCL_PUBLIC
 RCL_WARN_UNUSED
 rcl_ret_t
-rcl_system_clock_init(rcl_clock_t * clock);
+rcl_system_clock_init(
+  rcl_clock_t * clock,
+  const rcl_allocator_t * allocator);
 
 /// Finalize a clock as a `RCL_SYSTEM_TIME` time source.
 /**
@@ -228,6 +248,7 @@ rcl_system_clock_init(rcl_clock_t * clock);
  * the init fuction.
  *
  * \param[in] clock the handle to the clock which is being initialized.
+ * \param[in] allocator The allocator to use for deallocation
  * \return `RCL_RET_OK` if the time source was successfully finalized, or
  * \return `RCL_RET_INVALID_ARGUMENT` if any arguments are invalid, or
  * \return `RCL_RET_ERROR` an unspecified error occur.
@@ -235,7 +256,9 @@ rcl_system_clock_init(rcl_clock_t * clock);
 RCL_PUBLIC
 RCL_WARN_UNUSED
 rcl_ret_t
-rcl_system_clock_fini(rcl_clock_t * clock);
+rcl_system_clock_fini(
+  rcl_clock_t * clock,
+  const rcl_allocator_t * allocator);
 
 /// Initialize a duration using the clock.
 /**
